@@ -1,0 +1,23 @@
+def hyphen():
+    for i in range(50):
+        print("-") if i==49 else print("-",end="")
+def bill(n):
+    hyphen()
+    print("Bill Slabs".center(50))
+    if(n<=100):
+        amt=5.9*n
+        print(f"{round(n,2)} x 5.90 = {round(amt,2):.2f}".center(50))
+        hyphen()
+    elif(n>100 and n<=300):
+        amt=5.9*100+(n-100)*7
+        print("100 x 5.90 = 590.00".center(50),"\n",f"{round(n-100,2)} x 7.00 = {round(7*(n-100),2):.2f}".center(47))
+        hyphen()
+    else:
+        amt=5.9*100+7*200+7.6*(n-300)
+        print("100 x 5.90 = 590.00".center(50),"\n","200 x 7.00 = 1400.00".center(47),"\n",f"{round(n-300,2)} x 7.60 = {round(7.6*(n-300),2):.2f}".center(47))
+        hyphen()
+    return round(amt,2)
+if __name__=="__main__":
+    n=float(input("Enter the units: "))
+    f=bill(n)
+    print(f"Total amount = {f:.2f}")

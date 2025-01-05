@@ -1,0 +1,141 @@
+import calculation as calc,time,pyttsx3
+from math import ceil as cl,floor as fl
+en=pyttsx3.init()
+vc=en.getProperty('voices')
+en.setProperty('voice',vc[1].id)
+s=set('1234567890')
+class userdata:
+    def __init__(self):
+        self.kid_vmob,self.kid_vnm,self.kid_vadd,self.kmob_vid,self.mobilenos={},{},{},{},[]
+    def add_user(self,uid,mobileno,name,address):
+        if mobileno in self.mobilenos:
+            m=input("\nMobile number already exists!\nType 'forgot' if forgot User ID or type your new Mobile Number: ")
+            while True:
+                if m=='forgot':
+                    k=input("Enter your Mobile number: ")
+                    print(f"Your User ID is {self.kmob_vid[k]}\n") if k in self.mobilenos else print("User Not Found! Please Try Again!\n")
+                    break
+                elif m not in self.mobilenos:
+                    if len(m)!=10 or any(i not in s for i in m):
+                        print("Mobile number format not supported. Please Try Again!")
+                        m=input("\nType 'forgot' if forgot User ID or type your new Mobile Number: ")
+                    else:
+                        mobileno=m
+                        self.kid_vmob[uid]=m
+                        self.kid_vnm[uid]=name
+                        self.kid_vadd[uid]=address
+                        self.mobilenos.append(m)
+                        self.kmob_vid[m]=uid
+                        print(f"User added successfully!\nYour User ID is {uid}\n")
+                        break
+                else:
+                    print("Mobile number already exists! Please Try again!")
+                    m=input("\nType 'forgot' if forgot User ID or type your new Mobile Number: ")
+        else:
+            self.kid_vmob[uid]=mobileno
+            self.kid_vadd[uid]=address
+            self.kid_vnm[uid]=name
+            self.kmob_vid[mobileno]=uid
+            self.mobilenos.append(mobileno)
+            print(f"User added successfully!\nYour User ID is {uid}\n")
+    def remove_user(self,userid,mobileno):
+        if userid in self.kid_vmob:
+            mobileno=self.kid_vmob[userid]
+            del self.kmob_vid[mobileno],self.kid_vadd[userid],self.kid_vmob[userid],self.kid_vnm[userid]
+            self.mobilenos.remove(mobileno)
+            print("User removed successfully!\n")
+        else:
+            print("User Not Found!\n")
+    def show(self,userid):
+        print(f"\nUser ID : {userid}\nName : {self.kid_vnm[userid]}\nMobile no. : {self.kid_vmob[userid]}\nAddress : {self.kid_vadd[userid]}\n") if userid in self.kid_vmob else print("User not Found!\n")
+def main():
+    data=userdata()
+    data.add_user('001','7894040894','Adnan','Rajgangpur')
+    data.add_user('002','9861564980','Papa','Rourkela')
+    while True:
+        i=input("1. Print Bill\n2. Get Details\n3. Add a member\n4. Remove a member\n5. Forgot User ID\n6. Correction Window\n7. Exit\n")
+        if i=='1':
+            t=input("Enter the User ID: ")
+            if t in data.kid_vmob:
+                k=float(input("Enter the no. of units: "))
+                print("\n","TPWODL".center(50))
+                calc.hyphen()
+                data.show(t)
+                months=['January','February','March','April','May','June','July','August','September','October','November','December']
+                print(f"Bill units: {k}\nBill month : {months[int(time.strftime('%m'))-2]}\nBill period: {time.strftime('%d-%m-%Y',time.localtime(time.time()-24*3600*30))} - {time.strftime('%d-%m-%Y',time.localtime(time.time()-24*3600))}\n")
+                camt=calc.bill(k)
+                tbill=fl(camt+50+0.15*k)
+                prbt=round(((tbill*1.5)/100),2)
+                tamt=cl(tbill-prbt)
+                print(f"\nBill date : {time.strftime("%d-%m-%Y")}\nFixed charges : 30\nMeter rent : 20\nElec. duty : {round(0.15*k,2):.2f}\nCurrent amount : {camt:.2f}\nTotal bill : {tbill:.2f}\nPromt rebt : -({prbt:.2f})\nTotal amount before rebate date : {tamt:.2f}\nTotal amount after rebate date : {tbill:.2f}\nRebate date : {time.strftime('%d-%m-%Y',time.localtime(time.time()+24*3600*8))}\n\nHappy {time.strftime("%A")}!\n")
+                en.say(f"Total Bill Amount is {tamt:.2f}")
+                en.runAndWait()
+            else:
+                print("User Not Found!\n")
+        elif i=='2':
+            t=input("Enter the User ID: ")
+            data.show(t)
+        elif i=='3':
+            d1,d2,d3=input("Enter the Name: "),input("Enter the Mobile no.: "),input("Enter the Address: ")
+            if not data.kid_vmob:
+                d4='001'
+            else:
+                d4=str((int(max(data.kid_vmob.keys())))+1).zfill(3)
+            if len(d2)!=10 or any(i not in s for i in d2):
+                    print("Mobile number format not supported. Please Try Again!\n")                    
+            else:
+                data.add_user(d4,d2,d1,d3)
+        elif i=='4':
+            t=input("Enter the User ID: ")
+            if t not in data.kid_vmob:
+                print("User not Found!\n")
+            else:
+                data.remove_user(t,data.kid_vmob[t])
+        elif i=='5':
+            t=input("Enter your mobile number: ")
+            print(f"Your User ID is {data.kmob_vid[t]}\n") if t in data.kmob_vid else print("User not Found!\n")
+        elif i=='6':
+            a=input("Enter your User ID: ")
+            if a in data.kid_vmob:
+                while True:
+                    j=input("1. Change Name\n2. Change Mobile number\n3. Change Address\n4. Exit\n")
+                    if j=='1':
+                        print(f"Original Name : {data.kid_vnm[a]}")
+                        data.kid_vnm[a]=input("Enter new Name: ")
+                        print("Name changed successfully!\n")
+                    elif j=='2':
+                        b=data.kid_vmob[a]
+                        print(f"Original Mobile number: {b}")
+                        c=input("Enter new Mobile number: ")
+                        while True:
+                            if c in data.mobilenos:
+                                c=input("Mobile number already exists! Please enter another mobile number(or type 'exit' for Correction window): ")
+                                if c=='exit':
+                                    break
+                            elif len(c)!=10 or any(i not in s for i in c):
+                                c=input("Mobile number format not supported. Enter your 10-digit Mobile number: ")
+                            else:
+                                del data.kmob_vid[b]
+                                data.mobilenos.remove(b)
+                                b=c
+                                data.mobilenos.append(b)
+                                data.kmob_vid[b]=a
+                                data.kid_vmob[a]=b
+                                print("Mobile number changed successfully!\n")
+                                break
+                    elif j=='3':
+                        print(f"Original address: {data.kid_vadd[a]}")
+                        data.kid_vadd[a]=input("Enter new Address: ")
+                        print("Address changed succesfully!\n")
+                    elif j=='4':
+                        break
+                    else:
+                        print("Invalid option! Please Try again!\n")
+            else:
+                print("User Not Found!\n")
+        elif i=='7':
+            break
+        else:
+            print("Invalid option! Please Try again!\n")            
+if __name__=='__main__':
+    main()
